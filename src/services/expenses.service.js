@@ -1,61 +1,79 @@
-'use strict';
+const { createId } = require('../utils/id.service');
 
 let expenses = [];
 
-function getAllExpenses() {
-  return expenses;
-}
-
-function getByIdExpense(id) {
-  return expenses.find((item) => item.id === id);
-}
-
-function createExpense(userId, spentAt, title, amount, category, note) {
-  const expense = {
-    id: '0',
-    userId,
-    spentAt,
-    title,
-    amount,
-    category,
-    note,
-  };
-
-  expenses.push(expense);
-
-  return expense;
-}
-
-function deleteByIdExpense(id) {
-  const newExpenses = expenses.filter((item) => item.id !== id);
-
-  expenses = newExpenses;
-}
-
-function updateExpense(id, spentAt, title, amount, category, note) {
-  const targetExpense = getByIdExpense(id);
-
-  if (!targetExpense) {
-    return;
-  }
-
-  Object.assign(targetExpense, {
-    spentAt,
-    title,
-    amount,
-    category,
-    note,
-  });
-}
-
-const expensesService = {
-  getAllExpenses,
-  getByIdExpense,
-  createExpense,
-  deleteByIdExpense,
-  updateExpense,
+const resetExpenses = () => {
+  expenses = [];
 };
 
+const getExpenses = () => {
+  return expenses;
+};
+
+const getExpense = (id) => {
+  return expenses.find((elem) => elem.id === id);
+};
+const addExpense = (elem) => {
+  const elemWithId = {
+    id: createId(expenses),
+    ...elem,
+  };
+
+  expenses.push(elemWithId);
+
+  return elemWithId;
+};
+const updateExpense = (newElem) => {
+  const { id } = newElem;
+
+  expenses = expenses.map((elem) => (elem.id === +id ? newElem : elem));
+
+  return newElem;
+};
+const deleteExpense = (id) => {
+  const index = expenses.findIndex((elem) => elem.id === id);
+
+  if (index !== -1) {
+    expenses.splice(index, 1);
+  }
+
+  return expenses;
+};
+
+function filterExpenses(params) {
+  const { userId, categories, from, to } = params;
+  let expensesCopy = [...expenses];
+
+  if (userId) {
+    expensesCopy = expensesCopy.filter((expense) => expense.userId === +userId);
+  }
+
+  if (categories) {
+    expensesCopy = expensesCopy.filter(
+      (expense) =>
+        // eslint-disable-next-line comma-dangle
+        categories.includes(expense.category),
+      // eslint-disable-next-line function-paren-newline
+    );
+  }
+
+  if (from) {
+    expensesCopy = expensesCopy.filter((expense) => expense.spentAt > from);
+  }
+
+  if (to) {
+    expensesCopy = expensesCopy.filter((expense) => expense.spentAt < to);
+  }
+
+  return expensesCopy;
+}
+
 module.exports = {
-  expensesService,
+  resetExpenses,
+  getExpenses,
+  getExpense,
+  addExpense,
+  updateExpense,
+  deleteExpense,
+  filterExpenses,
 };

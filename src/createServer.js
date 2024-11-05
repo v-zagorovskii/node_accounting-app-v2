@@ -1,17 +1,26 @@
-'use strict';
+const { resetUsers } = require('./services/users.service.js');
+const { resetExpenses } = require('./services/expenses.service.js');
+const { userRouter } = require('./api/users.router.js');
+const { expenseRoute } = require('./api/expenses.router.js');
 
 const express = require('express');
 const cors = require('cors');
-const { usersRouter } = require('./api/users.router');
-const { expensesRouter } = require('./api/expenses.router');
 
 function createServer() {
   const app = express();
 
-  app.use(express.json());
+  resetUsers();
+  resetExpenses();
+
   app.use(cors());
-  app.use('/users', usersRouter);
-  app.use('/expenses', expensesRouter);
+  app.use(express.json());
+
+  app.get('/', (req, res) => {
+    res.send('Node js accounting!');
+  });
+
+  app.use('/users', userRouter);
+  app.use('/expenses', expenseRoute);
 
   return app;
 }

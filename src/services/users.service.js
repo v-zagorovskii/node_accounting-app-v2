@@ -1,47 +1,50 @@
-'use strict';
+const { createId } = require('../utils/id.service');
 
 let users = [];
 
-function getAllUsers() {
+const resetUsers = () => {
+  users = [];
+};
+
+const getUsers = () => {
   return users;
-}
+};
 
-function getByIdUser(id) {
-  return users.find((user) => user.id === id);
-}
+const getUser = (id) => {
+  return users.find((elem) => elem.id === id);
+};
+const addUser = (elem) => {
+  const elemWithId = {
+    id: createId(users),
+    ...elem,
+  };
 
-function createUser(name) {
-  const user = { id: '0', name };
+  users.push(elemWithId);
 
-  users.push(user);
+  return elemWithId;
+};
+const updateUser = (newElem) => {
+  const { id } = newElem;
 
-  return user;
-}
+  users = users.map((elem) => (elem.id === +id ? newElem : elem));
 
-function deleteByIdUser(id) {
-  const newUsers = users.filter((user) => user.id !== id);
+  return newElem;
+};
+const deleteUser = (id) => {
+  const index = users.findIndex((elem) => elem.id === id);
 
-  users = newUsers;
-}
-
-function updateUser({ id, name }) {
-  const user = getByIdUser(id);
-
-  if (!user) {
-    return;
+  if (index !== -1) {
+    users.splice(index, 1);
   }
 
-  Object.assign(user, { name });
-}
-
-const usersService = {
-  getAllUsers,
-  getByIdUser,
-  createUser,
-  deleteByIdUser,
-  updateUser,
+  return users;
 };
 
 module.exports = {
-  usersService,
+  resetUsers,
+  getUsers,
+  getUser,
+  addUser,
+  updateUser,
+  deleteUser,
 };
